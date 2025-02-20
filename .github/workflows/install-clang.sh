@@ -29,7 +29,7 @@ case "$DISTRO" in
         /usr/bin/yum makecache
         /usr/bin/yum install -y clang-devel llvm python3-pip
         /usr/bin/yum install -y tmate
-        /usr/bin/tmate
+        #/usr/bin/tmate
         ln /usr/bin/pip3 /usr/bin/pip
         which pip
         export LIBCLANG_PATH=/usr/lib64/
