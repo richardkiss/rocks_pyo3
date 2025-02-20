@@ -35,20 +35,36 @@ impl PyDB {
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 
+    fn multi_get(&self, py: Python<'_>, keys: Vec<Vec<u8>>) -> PyResult<Vec<Option<Py<PyBytes>>>> {
+        let values = self.db.multi_get(&keys);
+        let mut r: Vec<Option<Py<PyBytes>>> = Vec::with_capacity(values.len());
+        for value in values {
+            if let Err(e) = value {
+                return Err(PyRuntimeError::new_err(e.to_string()));
+            }
+            if let Ok(Some(value)) = value {
+                r.push(Some(PyBytes::new(py, &value).into()));
+            } else {
+                r.push(None);
+            }
+        }
+        Ok(r)
+    }
+
     fn delete(&self, key: &[u8]) -> PyResult<()> {
         self.db
             .delete(key)
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 
-    fn iterator<'py>(slf: Py<Self>, py: Python) -> PyResult<Py<DBIterator>> {
+    fn iterator(slf: Py<Self>, py: Python) -> PyResult<Py<DBIterator>> {
         // we need to bump the reference count to the db so that it lives as
         // long as the iterator
         let db: Py<PyDB> = slf.clone_ref(py);
         let bound_db = db.bind(py);
         let db_ref = bound_db.borrow();
         let iter = db_ref.db.iterator(IteratorMode::Start);
-        let iter = unsafe { std::mem::transmute(iter) }; // erase the lifetime
+        let iter: rocksdb::DBIterator<'static> = unsafe { std::mem::transmute(iter) }; // erase the lifetime
         Py::new(py, DBIterator { iter, _db: db })
     }
 }
@@ -65,7 +81,7 @@ impl DBIterator {
     fn __iter__(slf: Py<Self>) -> Py<DBIterator> {
         slf
     }
-    fn __next__<'py>(&mut self, py: Python<'py>) -> PyResult<Option<(PyObject, PyObject)>> {
+    fn __next__(&mut self, py: Python) -> PyResult<Option<(PyObject, PyObject)>> {
         if let Some(result) = self.iter.next() {
             match result {
                 Ok((key, value)) => {
