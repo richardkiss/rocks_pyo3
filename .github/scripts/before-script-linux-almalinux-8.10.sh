@@ -4,5 +4,6 @@ echo 'Alma linux'
 
 /usr/bin/yum install -y clang-devel
 
-/usr/bin/yum install -y python3-pip
-ln -s /usr/bin/pip3 /usr/bin/pip
+#/usr/bin/yum install -y python3-pip
+python3 -m ensurepip --upgrade
+ln /usr/local/bin/pip3 /usr/local/bin/pip
