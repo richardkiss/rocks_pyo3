@@ -27,7 +27,7 @@ case "$DISTRO" in
     almalinux|centos|rhel|fedora)
         echo "Installing libclang for AlmaLinux/CentOS/RHEL/Fedora..."
         /usr/bin/yum makecache
-        /usr/bin/yum install -y clang-devel llvm
+        /usr/bin/yum install -y clang-devel llvm python3-pip
         export LIBCLANG_PATH=/usr/lib64/
         ;;
 
