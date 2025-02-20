@@ -20,7 +20,7 @@ case "$DISTRO" in
     ubuntu|debian)
         echo "Installing libclang for Ubuntu/Debian..."
         /usr/bin/apt update
-        /usr/bin/apt install -y clang libclang-dev build-essential
+        /usr/bin/apt install -y clang libclang-dev build-essential gcc-multilib libc6-dev-i386
         export LIBCLANG_PATH=/usr/lib/llvm-14/lib
         ;;
 
