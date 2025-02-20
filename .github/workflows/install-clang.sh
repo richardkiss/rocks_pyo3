@@ -20,14 +20,14 @@ case "$DISTRO" in
     ubuntu|debian)
         echo "Installing libclang for Ubuntu/Debian..."
         sudo /usr/bin/apt update
-        sudo /usr/bin/apt install -y clang libclang-dev build-essential # libc6-dev-i386
+        sudo /usr/bin/apt install -y clang libclang-dev build-essential libc6-dev-i386
         export LIBCLANG_PATH=/usr/lib/llvm-14/lib
         ;;
 
     almalinux|centos|rhel|fedora)
         echo "Installing libclang for AlmaLinux/CentOS/RHEL/Fedora..."
         /usr/bin/yum makecache
-        /usr/bin/yum install -y clang-devel llvm glibc-devel glibc-headers gcc-c++ make
+        /usr/bin/yum install -y clang-devel llvm
         export LIBCLANG_PATH=/usr/lib64/llvm/lib
         ;;
 
