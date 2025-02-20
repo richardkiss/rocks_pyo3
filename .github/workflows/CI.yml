@@ -27,13 +27,13 @@ jobs:
         platform:
           - runner: ubuntu-22.04
             target: x86_64
-            manylinux: manylinux_2_24
+            manylinux: manylinux_2_28
 #          - runner: ubuntu-22.04
 #            target: x86
 #            manylinux: 2_24
-#          - runner: ubuntu-22.04
-#            target: aarch64
-#            manylinux: 2_24
+          - runner: ubuntu-22.04
+            target: aarch64
+            manylinux: manylinux_2_28
 #          - runner: ubuntu-22.04
 #            target: armv7
 #            manylinux: 2_24
