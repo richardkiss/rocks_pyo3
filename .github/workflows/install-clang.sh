@@ -28,7 +28,7 @@ case "$DISTRO" in
         echo "Installing libclang for AlmaLinux/CentOS/RHEL/Fedora..."
         /usr/bin/yum makecache
         /usr/bin/yum install -y clang-devel llvm
-        export LIBCLANG_PATH=/usr/lib64/llvm/lib
+        export LIBCLANG_PATH=/usr/lib64/
         ;;
 
     alpine)
