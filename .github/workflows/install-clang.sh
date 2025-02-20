@@ -28,6 +28,8 @@ case "$DISTRO" in
         echo "Installing libclang for AlmaLinux/CentOS/RHEL/Fedora..."
         /usr/bin/yum makecache
         /usr/bin/yum install -y clang-devel llvm python3-pip
+        ln /usr/bin/pip3 /usr/bin/pip
+        which pip
         export LIBCLANG_PATH=/usr/lib64/
         ;;
 
