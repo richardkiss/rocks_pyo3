@@ -19,6 +19,7 @@ echo "Detected OS: $DISTRO"
 case "$DISTRO" in
     ubuntu|debian)
         echo "Installing libclang for Ubuntu/Debian..."
+        sed -i 's/http:\/\/deb.debian.org\/debian/http:\/\/archive.debian.org\/debian/g' /etc/apt/sources.list
         sed -i 's/http:\/\/security.debian.org\/debian/http:\/\/archive.debian.org\/debian/g' /etc/apt/sources.list
         /usr/bin/apt update || /usr/bin/apt update
         /usr/bin/apt install -y clang libclang-dev build-essential libc6-dev-i386 || sudo /usr/bin/apt install -y clang libclang-dev build-essential
