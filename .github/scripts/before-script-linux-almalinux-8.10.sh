@@ -7,3 +7,5 @@ echo 'Alma linux'
 #/usr/bin/yum install -y python3-pip
 python3 -m ensurepip --upgrade
 ln /usr/local/bin/pip3 /usr/local/bin/pip
+
+sudo dnf install gcc gcc-c++ glibc-devel.i686
