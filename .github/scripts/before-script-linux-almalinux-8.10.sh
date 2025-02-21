@@ -8,4 +8,4 @@ echo 'Alma linux'
 python3 -m ensurepip --upgrade
 ln /usr/local/bin/pip3 /usr/local/bin/pip
 
-dnf install gcc gcc-c++ glibc-devel.i686
+dnf install -y gcc gcc-c++ glibc-devel.i686
