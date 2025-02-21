@@ -25,29 +25,33 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-          - runner: ubuntu-22.04
-            target: x86_64
-            manylinux: manylinux_2_28
+#          - runner: ubuntu-22.04
+#            target: x86_64
+#            manylinux: manylinux_2_28
           - runner: ubuntu-22.04
             target: x86
             manylinux: manylinux_2_28
-          - runner: ubuntu-22.04
-            target: aarch64
-            manylinux: manylinux_2_28
-          - runner: ubuntu-22.04
-            target: armv7
-            manylinux: manylinux_2_28
-          - runner: ubuntu-22.04
-            target: s390x
-            manylinux: manylinux_2_28
-          - runner: ubuntu-22.04
-            target: ppc64le
-            manylinux: manylinux_2_28
+#          - runner: ubuntu-22.04
+#            target: aarch64
+#            manylinux: manylinux_2_28
+#          - runner: ubuntu-22.04
+#            target: armv7
+#            manylinux: manylinux_2_28
+#          - runner: ubuntu-22.04
+#            target: s390x
+#            manylinux: manylinux_2_28
+#          - runner: ubuntu-22.04
+#            target: ppc64le
+#            manylinux: manylinux_2_28
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
+      - name: tmate
+        run: |
+          apt install tmate
+          script -q /dev/null tmate
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
