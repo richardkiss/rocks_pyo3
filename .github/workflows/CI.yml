@@ -56,7 +56,7 @@ jobs:
         run: |
           sudo apt install tmate
           echo 'loaded tmate'
-          script -q /dev/null tmate
+          script -q -c tmate /dev/null
           echo 'ran tmate'
       - name: Build wheels
         uses: PyO3/maturin-action@v1
