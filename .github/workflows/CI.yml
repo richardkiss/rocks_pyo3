@@ -28,9 +28,9 @@ jobs:
           - runner: ubuntu-22.04
             target: x86_64
             manylinux: manylinux_2_28
-          #- runner: ubuntu-22.04
-          #  target: x86
-          #  manylinux: manylinux_2_28
+          - runner: ubuntu-22.04
+            target: x86
+            manylinux: manylinux_2_28
           - runner: ubuntu-22.04
             target: aarch64
             manylinux: manylinux_2_28
@@ -131,22 +131,13 @@ jobs:
         platform:
           - runner: macos-13
             target: x86_64
-#          - runner: macos-14
-#            target: aarch64
+          - runner: macos-14
+            target: aarch64
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: downgrade toolchain
-        run: |
-          echo '[toolchain]' > rust-toolchain.toml
-          echo 'channel = "1.71.1"' >> rust-toolchain.toml
-      - name: tmate
-        run: |
-          brew install tmate
-          echo "running tmate"
-#          script -q /dev/null tmate -F
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
