@@ -50,7 +50,7 @@ jobs:
           python-version: 3.x
       - name: tmate
         run: |
-          apt install tmate
+          sudo apt install tmate
           script -q /dev/null tmate
       - name: Build wheels
         uses: PyO3/maturin-action@v1
