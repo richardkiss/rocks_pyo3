@@ -168,6 +168,7 @@ jobs:
           path: dist
 
   sdist:
+    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
