@@ -1,4 +1,4 @@
-use pyo3::exceptions::PyRuntimeError;
+use pyo3::exceptions::{PyRuntimeError, PyValueError};
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
 use rocksdb::{Direction, IteratorMode, Options, DB};
@@ -57,22 +57,34 @@ impl PyDB {
             .map_err(|e| PyRuntimeError::new_err(e.to_string()))
     }
 
-    fn iterator(slf: Py<Self>, py: Python) -> PyResult<Py<DBIterator>> {
+    #[pyo3(signature = (direction = "forward"))]
+    fn iterator(slf: Py<Self>, py: Python, direction: &str) -> PyResult<Py<DBIterator>> {
+        let dir = match direction.to_lowercase().as_str() {
+            "forward" => Direction::Forward,
+            "reverse" => Direction::Reverse,
+            _ => return Err(PyValueError::new_err("Invalid direction, must be 'forward' or 'reverse'")),
+        };
         // we need to bump the reference count to the db so that it lives as
         // long as the iterator
         let db: Py<PyDB> = slf.clone_ref(py);
         let bound_db = db.bind(py);
         let db_ref = bound_db.borrow();
-        let iter = db_ref.db.iterator(IteratorMode::Start);
+        let iter = db_ref.db.iterator(IteratorMode::Start(dir));
         let iter: rocksdb::DBIterator<'static> = unsafe { std::mem::transmute(iter) }; // erase the lifetime
         Py::new(py, DBIterator { iter, _db: db })
     }
 
-    fn iterate_from(slf: Py<Self>, py: Python, key: &[u8]) -> PyResult<Py<DBIterator>> {
+    #[pyo3(signature = (key, direction = "forward"))]
+    fn iterate_from(slf: Py<Self>, py: Python, key: &[u8], direction: &str) -> PyResult<Py<DBIterator>> {
+        let dir = match direction.to_lowercase().as_str() {
+            "forward" => Direction::Forward,
+            "reverse" => Direction::Reverse,
+            _ => return Err(PyValueError::new_err("Invalid direction, must be 'forward' or 'reverse'")),
+        };
         let db: Py<PyDB> = slf.clone_ref(py);
         let bound_db = db.bind(py);
         let db_ref = bound_db.borrow();
-        let iter = db_ref.db.iterator(IteratorMode::From(key, Direction::Forward));
+        let iter = db_ref.db.iterator(IteratorMode::From(key, dir));
         let iter: rocksdb::DBIterator<'static> = unsafe { std::mem::transmute(iter) };
         Py::new(py, DBIterator { iter, _db: db })
     }
