@@ -7,11 +7,11 @@ def test_basic_crud():
         
         # Test put and get
         db.put(b"test_key", b"test_value")
-        assert db.get(b"test_key")[0] == b"test_value"
+        assert db.get(b"test_key") == b"test_value"
         
         # Test delete
         db.delete(b"test_key")
-        assert db.get(b"test_key")[0] is None
+        assert db.get(b"test_key") is None
 
 def test_multi_get():
     with tempfile.TemporaryDirectory() as tmpdir:
@@ -28,6 +28,6 @@ def test_multi_get():
             
         # Test valid and invalid keys
         results = db.multi_get([b"key1", b"key2", b"missing"])
-        assert results[0][0] == b"val1"
-        assert results[1][0] == b"val2"
-        assert results[2][0] is None
+        assert results[0] == b"val1"
+        assert results[1] == b"val2"
+        assert results[2] is None
