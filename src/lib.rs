@@ -1,7 +1,7 @@
 use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use pyo3::types::PyBytes;
-use rocksdb::{IteratorMode, Options, DB};
+use rocksdb::{Direction, IteratorMode, Options, DB};
 use std::path::Path;
 
 #[pyclass(name = "DB")]
@@ -65,6 +65,15 @@ impl PyDB {
         let db_ref = bound_db.borrow();
         let iter = db_ref.db.iterator(IteratorMode::Start);
         let iter: rocksdb::DBIterator<'static> = unsafe { std::mem::transmute(iter) }; // erase the lifetime
+        Py::new(py, DBIterator { iter, _db: db })
+    }
+
+    fn iterate_from(slf: Py<Self>, py: Python, key: &[u8]) -> PyResult<Py<DBIterator>> {
+        let db: Py<PyDB> = slf.clone_ref(py);
+        let bound_db = db.bind(py);
+        let db_ref = bound_db.borrow();
+        let iter = db_ref.db.iterator(IteratorMode::From(key, Direction::Forward));
+        let iter: rocksdb::DBIterator<'static> = unsafe { std::mem::transmute(iter) };
         Py::new(py, DBIterator { iter, _db: db })
     }
 }
