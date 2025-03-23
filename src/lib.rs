@@ -62,24 +62,43 @@ impl PyDB {
         let dir = match direction.to_lowercase().as_str() {
             "forward" => Direction::Forward,
             "reverse" => Direction::Reverse,
-            _ => return Err(PyValueError::new_err("Invalid direction, must be 'forward' or 'reverse'")),
+            _ => {
+                return Err(PyValueError::new_err(
+                    "Invalid direction, must be 'forward' or 'reverse'",
+                ))
+            }
         };
         // we need to bump the reference count to the db so that it lives as
         // long as the iterator
         let db: Py<PyDB> = slf.clone_ref(py);
         let bound_db = db.bind(py);
         let db_ref = bound_db.borrow();
-        let iter = db_ref.db.iterator(IteratorMode::Start(dir));
+
+        // Use the appropriate iterator mode based on direction
+        let iter = match dir {
+            Direction::Forward => db_ref.db.iterator(IteratorMode::Start),
+            Direction::Reverse => db_ref.db.iterator(IteratorMode::End),
+        };
+
         let iter: rocksdb::DBIterator<'static> = unsafe { std::mem::transmute(iter) }; // erase the lifetime
         Py::new(py, DBIterator { iter, _db: db })
     }
 
     #[pyo3(signature = (key, direction = "forward"))]
-    fn iterate_from(slf: Py<Self>, py: Python, key: &[u8], direction: &str) -> PyResult<Py<DBIterator>> {
+    fn iterate_from(
+        slf: Py<Self>,
+        py: Python,
+        key: &[u8],
+        direction: &str,
+    ) -> PyResult<Py<DBIterator>> {
         let dir = match direction.to_lowercase().as_str() {
             "forward" => Direction::Forward,
             "reverse" => Direction::Reverse,
-            _ => return Err(PyValueError::new_err("Invalid direction, must be 'forward' or 'reverse'")),
+            _ => {
+                return Err(PyValueError::new_err(
+                    "Invalid direction, must be 'forward' or 'reverse'",
+                ))
+            }
         };
         let db: Py<PyDB> = slf.clone_ref(py);
         let bound_db = db.bind(py);
