@@ -8,5 +8,5 @@ name = "rocks_pyo3"
 crate-type = ["cdylib"]
 
 [dependencies]
-pyo3 = "0.23.4"
+pyo3 = "0.24.1"
 rocksdb = { git = "https://github.com/rust-rocksdb/rust-rocksdb", rev = "be8d71a0" }

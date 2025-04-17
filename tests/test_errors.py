@@ -4,7 +4,7 @@ import pytest
 
 
 def test_invalid_db_path():
-    with tempfile.TemporaryDirectory() as tmpdir:
+    with tempfile.TemporaryDirectory():
         with pytest.raises(Exception):
             rocks_pyo3.DB("/invalid/path/that/does/not/exist", create_if_missing=False)
 

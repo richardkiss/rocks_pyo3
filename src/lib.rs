@@ -107,6 +107,24 @@ impl PyDB {
         let iter: rocksdb::DBIterator<'static> = unsafe { std::mem::transmute(iter) };
         Py::new(py, DBIterator { iter, _db: db })
     }
+
+    fn write(&self, batch: &mut PyWriteBatch) -> PyResult<()> {
+        batch.write(self)
+    }
+
+    fn approximate_size(&self) -> PyResult<u64> {
+        // Get property for approximate size
+        match self.db.property_int_value("rocksdb.estimate-num-keys") {
+            Ok(Some(size)) => Ok(size),
+            Ok(None) => Ok(0),
+            Err(e) => Err(PyRuntimeError::new_err(e.to_string())),
+        }
+    }
+
+    // Convenience method for putting string key/value pairs
+    fn put_str(&self, key: &str, value: &str) -> PyResult<()> {
+        self.put(key.as_bytes(), value.as_bytes())
+    }
 }
 
 #[pyclass]
@@ -137,8 +155,58 @@ impl DBIterator {
     }
 }
 
+#[pyclass(name = "WriteBatch", unsendable)]
+struct PyWriteBatch {
+    batch: Option<rocksdb::WriteBatch>,
+}
+
+#[pymethods]
+impl PyWriteBatch {
+    #[new]
+    fn new() -> Self {
+        PyWriteBatch {
+            batch: Some(rocksdb::WriteBatch::default()),
+        }
+    }
+
+    fn put(&mut self, key: &[u8], value: &[u8]) -> PyResult<()> {
+        match &mut self.batch {
+            Some(batch) => {
+                batch.put(key, value);
+                Ok(())
+            }
+            None => Err(PyRuntimeError::new_err("WriteBatch has already been used")),
+        }
+    }
+
+    fn delete(&mut self, key: &[u8]) -> PyResult<()> {
+        match &mut self.batch {
+            Some(batch) => {
+                batch.delete(key);
+                Ok(())
+            }
+            None => Err(PyRuntimeError::new_err("WriteBatch has already been used")),
+        }
+    }
+
+    fn write(&mut self, db: &PyDB) -> PyResult<()> {
+        // Take ownership of the batch, replacing it with None
+        let write_batch = match self.batch.take() {
+            Some(batch) => batch,
+            None => return Err(PyRuntimeError::new_err("WriteBatch has already been used")),
+        };
+
+        // Write the batch directly to the database
+        db.db
+            .write(write_batch)
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+    }
+}
+
 #[pymodule]
 fn rocks_pyo3(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_class::<PyDB>()?;
+    m.add_class::<DBIterator>()?;
+    m.add_class::<PyWriteBatch>()?;
     Ok(())
 }
