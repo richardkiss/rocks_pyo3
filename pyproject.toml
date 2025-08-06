@@ -25,3 +25,10 @@ python-source = "python"
 module-name = "rocks_pyo3"
 bindings = "pyo3"
 strip = true
+
+[dependency-groups]
+dev = [
+    "mypy>=1.14.1",
+    "pytest>=8.3.5",
+    "ruff>=0.12.7",
+]
