@@ -1,5 +1,4 @@
 import sys
-import pytest
 
 from rocks_pyo3.rlimit import maximize_nofile_limit
 
