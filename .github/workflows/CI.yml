@@ -80,7 +80,6 @@ jobs:
           path: dist
 
   musllinux:
-    if: false
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
