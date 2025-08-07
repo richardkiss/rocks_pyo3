@@ -31,12 +31,12 @@ jobs:
           - runner: ubuntu-24.04
             target: x86
             manylinux: manylinux_2_28
-    #          - runner: ubuntu-22.04
-    #            target: aarch64
-    #            manylinux: manylinux_2_28
-    #          - runner: ubuntu-22.04
-    #            target: armv7
-    #            manylinux: manylinux_2_28
+          - runner: ubuntu-22.04
+            target: aarch64
+            manylinux: manylinux_2_28
+          - runner: ubuntu-22.04
+            target: armv7
+            manylinux: manylinux_2_28
     #          - runner: ubuntu-22.04
     #            target: s390x
     #            manylinux: manylinux_2_28
@@ -115,7 +115,6 @@ jobs:
           path: dist
 
   windows:
-    if: false
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -143,7 +142,6 @@ jobs:
           path: dist
 
   macos:
-    if: false
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
