@@ -48,21 +48,23 @@ jobs:
           echo "===GCC-I686-DEBUG=== Searching for stddef.h"
           find /usr -name stddef.h || true
       - name: Build wheel with maturin (zig mode, sysroot + includes)
+        continue-on-error: true
         env:
           BINDGEN_EXTRA_CLANG_ARGS: "--sysroot=/usr -I/usr/include/i386-linux-gnu -I/usr/lib/gcc/i686-linux-gnu/13/include"
         run: |
           echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
           pip install maturin
-          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter || echo "===GCC-I686-DEBUG=== BUILD FAILED, TRYING NEXT STRATEGY"
+          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
 
       - name: Build wheel with maturin (zig mode, sysroot only)
         if: failure()
+        continue-on-error: true
         env:
           BINDGEN_EXTRA_CLANG_ARGS: "--sysroot=/usr"
         run: |
           echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
           pip install maturin
-          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter || echo "===GCC-I686-DEBUG=== BUILD FAILED, TRYING NEXT STRATEGY"
+          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
 
       - name: Build wheel with maturin (zig mode, -I/usr/include only)
         if: failure()
