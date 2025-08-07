@@ -21,10 +21,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install zig (official release), clang, and libclang-dev
+      - name: Install zig (official release), clang, libclang-dev, and 32-bit libc headers
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang libclang-dev
+          sudo apt-get install -y clang libclang-dev gcc-multilib g++-multilib libc6-dev-i386
           ZIG_VERSION=0.12.0
           curl -LO https://ziglang.org/download/${ZIG_VERSION}/zig-linux-x86_64-${ZIG_VERSION}.tar.xz
           tar -xf zig-linux-x86_64-${ZIG_VERSION}.tar.xz
@@ -36,6 +36,8 @@ jobs:
           export PATH="$HOME/.cargo/bin:$PATH"
           rustup target add i686-unknown-linux-gnu
       - name: Build wheel with maturin (zig mode)
+        env:
+          BINDGEN_EXTRA_CLANG_ARGS: "-I/usr/include/i386-linux-gnu"
         run: |
           pip install maturin
           maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
