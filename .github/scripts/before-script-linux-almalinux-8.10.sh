@@ -2,7 +2,13 @@
 
 echo 'Alma linux'
 
-#/usr/bin/yum install -y clang-devel
+# Install clang and clang-devel for bindgen/libclang
+yum install -y clang clang-devel
+
+# Set LIBCLANG_PATH for bindgen
+export LIBCLANG_PATH=/usr/lib64
+
+echo "LIBCLANG_PATH=$LIBCLANG_PATH"
 
 #/usr/bin/yum install -y python3-pip
 python3 -m ensurepip --upgrade
