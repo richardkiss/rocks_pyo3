@@ -30,6 +30,11 @@ jobs:
           tar -xf zig-linux-x86_64-${ZIG_VERSION}.tar.xz
           echo "$PWD/zig-linux-x86_64-${ZIG_VERSION}" >> $GITHUB_PATH
           echo "export PATH=$PWD/zig-linux-x86_64-${ZIG_VERSION}:$PATH" >> $GITHUB_ENV
+      - name: Install Rust and i686 target
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup target add i686-unknown-linux-gnu
       - name: Build wheel with maturin (zig mode)
         run: |
           pip install maturin
