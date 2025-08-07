@@ -1,0 +1,41 @@
+name: linux-x86
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - "*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-x86:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Prepare dockcross script
+        run: |
+          docker pull dockcross/manylinux2014-x86
+          docker run --rm dockcross/manylinux2014-x86 > ./dockcross
+          chmod +x ./dockcross
+      - name: Build wheel in dockcross/manylinux2014-x86
+        run: |
+          ./dockcross bash -c "
+            yum install -y clang clang-devel
+            export LIBCLANG_PATH=/usr/lib64
+            pip3 install maturin
+            maturin build --release --out dist --find-interpreter
+          "
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x86
+          path: dist
