@@ -35,10 +35,19 @@ jobs:
           curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
           export PATH="$HOME/.cargo/bin:$PATH"
           rustup target add i686-unknown-linux-gnu
+      - name: DEBUG GCC INCLUDE PATHS (===GCC-I686-DEBUG===)
+        run: |
+          echo "===GCC-I686-DEBUG=== Listing /usr/lib/gcc/i686-linux-gnu/"
+          ls -l /usr/lib/gcc/i686-linux-gnu/ || true
+          echo "===GCC-I686-DEBUG=== Listing /usr/include/i386-linux-gnu/"
+          ls -l /usr/include/i386-linux-gnu/ || true
+          echo "===GCC-I686-DEBUG=== Listing /usr/include/"
+          ls -l /usr/include/ || true
       - name: Build wheel with maturin (zig mode)
         env:
-          BINDGEN_EXTRA_CLANG_ARGS: "-I/usr/include/i386-linux-gnu"
+          BINDGEN_EXTRA_CLANG_ARGS: "--sysroot=/usr -I/usr/include/i386-linux-gnu -I/usr/lib/gcc/i686-linux-gnu/13/include"
         run: |
+          echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
           pip install maturin
           maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
       - name: Upload wheels
