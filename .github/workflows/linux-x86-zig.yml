@@ -47,33 +47,30 @@ jobs:
           ls -l /usr/lib/gcc/i686-linux-gnu/13/include/ || true
           echo "===GCC-I686-DEBUG=== Searching for stddef.h"
           find /usr -name stddef.h || true
-      - name: Build wheel with maturin (zig mode, sysroot + includes)
-        continue-on-error: true
-        env:
-          BINDGEN_EXTRA_CLANG_ARGS: "--sysroot=/usr -I/usr/include/i386-linux-gnu -I/usr/lib/gcc/i686-linux-gnu/13/include"
+      - name: Build wheel with maturin (zig mode, fallback strategies)
         run: |
-          echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
+          set -e
           pip install maturin
-          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
-
-      - name: Build wheel with maturin (zig mode, sysroot only)
-        if: failure()
-        continue-on-error: true
-        env:
-          BINDGEN_EXTRA_CLANG_ARGS: "--sysroot=/usr"
-        run: |
-          echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
-          pip install maturin
-          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
-
-      - name: Build wheel with maturin (zig mode, -I/usr/include only)
-        if: failure()
-        env:
-          BINDGEN_EXTRA_CLANG_ARGS: "-I/usr/include"
-        run: |
-          echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
-          pip install maturin
-          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
+          echo "===GCC-I686-DEBUG=== Trying sysroot + includes"
+          export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr -I/usr/include/i386-linux-gnu -I/usr/lib/gcc/i686-linux-gnu/13/include"
+          if maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter; then
+            echo "===GCC-I686-DEBUG=== Success with sysroot + includes"
+            exit 0
+          fi
+          echo "===GCC-I686-DEBUG=== Trying sysroot only"
+          export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr"
+          if maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter; then
+            echo "===GCC-I686-DEBUG=== Success with sysroot only"
+            exit 0
+          fi
+          echo "===GCC-I686-DEBUG=== Trying -I/usr/include only"
+          export BINDGEN_EXTRA_CLANG_ARGS="-I/usr/include"
+          if maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter; then
+            echo "===GCC-I686-DEBUG=== Success with -I/usr/include only"
+            exit 0
+          fi
+          echo "===GCC-I686-DEBUG=== All strategies failed"
+          exit 1
 
       - name: Upload wheels
         uses: actions/upload-artifact@v4
