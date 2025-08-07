@@ -43,13 +43,36 @@ jobs:
           ls -l /usr/include/i386-linux-gnu/ || true
           echo "===GCC-I686-DEBUG=== Listing /usr/include/"
           ls -l /usr/include/ || true
-      - name: Build wheel with maturin (zig mode)
+          echo "===GCC-I686-DEBUG=== Listing /usr/lib/gcc/i686-linux-gnu/13/include/"
+          ls -l /usr/lib/gcc/i686-linux-gnu/13/include/ || true
+          echo "===GCC-I686-DEBUG=== Searching for stddef.h"
+          find /usr -name stddef.h || true
+      - name: Build wheel with maturin (zig mode, sysroot + includes)
         env:
           BINDGEN_EXTRA_CLANG_ARGS: "--sysroot=/usr -I/usr/include/i386-linux-gnu -I/usr/lib/gcc/i686-linux-gnu/13/include"
         run: |
           echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
           pip install maturin
+          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter || echo "===GCC-I686-DEBUG=== BUILD FAILED, TRYING NEXT STRATEGY"
+
+      - name: Build wheel with maturin (zig mode, sysroot only)
+        if: failure()
+        env:
+          BINDGEN_EXTRA_CLANG_ARGS: "--sysroot=/usr"
+        run: |
+          echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
+          pip install maturin
+          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter || echo "===GCC-I686-DEBUG=== BUILD FAILED, TRYING NEXT STRATEGY"
+
+      - name: Build wheel with maturin (zig mode, -I/usr/include only)
+        if: failure()
+        env:
+          BINDGEN_EXTRA_CLANG_ARGS: "-I/usr/include"
+        run: |
+          echo "===GCC-I686-DEBUG=== BINDGEN_EXTRA_CLANG_ARGS: $BINDGEN_EXTRA_CLANG_ARGS"
+          pip install maturin
           maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
+
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
