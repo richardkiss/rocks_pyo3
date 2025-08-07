@@ -8,5 +8,9 @@ EOF
 
 /usr/bin/apt update
 /usr/bin/apt install -y clang libclang-dev
+
+# Install i686 cross-compiler toolchain for 32-bit builds
+/usr/bin/apt install -y gcc-multilib g++-multilib gcc-i686-linux-gnu g++-i686-linux-gnu
+
 export LIBCLANG_PATH=/usr/lib/llvm-14/lib
 echo "LIBCLANG_PATH=$LIBCLANG_PATH"

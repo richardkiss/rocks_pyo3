@@ -30,7 +30,7 @@ jobs:
             manylinux: manylinux_2_28
           - runner: ubuntu-24.04
             target: x86
-            manylinux: manylinux2014
+            manylinux: manylinux_2_24
           - runner: ubuntu-24.04
             target: aarch64
             manylinux: manylinux_2_28
