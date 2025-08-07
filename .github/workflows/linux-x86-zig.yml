@@ -1,0 +1,79 @@
+name: linux-x86-zig
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - "*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-x86-zig:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Install zig (official release), clang, libclang-dev, and 32-bit libc headers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libclang-dev gcc-multilib g++-multilib libc6-dev-i386
+          ZIG_VERSION=0.12.0
+          curl -LO https://ziglang.org/download/${ZIG_VERSION}/zig-linux-x86_64-${ZIG_VERSION}.tar.xz
+          tar -xf zig-linux-x86_64-${ZIG_VERSION}.tar.xz
+          echo "$PWD/zig-linux-x86_64-${ZIG_VERSION}" >> $GITHUB_PATH
+          echo "export PATH=$PWD/zig-linux-x86_64-${ZIG_VERSION}:$PATH" >> $GITHUB_ENV
+      - name: Install Rust and i686 target
+        run: |
+          curl https://sh.rustup.rs -sSf | sh -s -- -y --default-toolchain stable
+          export PATH="$HOME/.cargo/bin:$PATH"
+          rustup target add i686-unknown-linux-gnu
+      - name: DEBUG GCC INCLUDE PATHS (===GCC-I686-DEBUG===)
+        run: |
+          echo "===GCC-I686-DEBUG=== Listing /usr/lib/gcc/i686-linux-gnu/"
+          ls -l /usr/lib/gcc/i686-linux-gnu/ || true
+          echo "===GCC-I686-DEBUG=== Listing /usr/include/i386-linux-gnu/"
+          ls -l /usr/include/i386-linux-gnu/ || true
+          echo "===GCC-I686-DEBUG=== Listing /usr/include/"
+          ls -l /usr/include/ || true
+          echo "===GCC-I686-DEBUG=== Listing /usr/lib/gcc/i686-linux-gnu/13/include/"
+          ls -l /usr/lib/gcc/i686-linux-gnu/13/include/ || true
+          echo "===GCC-I686-DEBUG=== Searching for stddef.h"
+          find /usr -name stddef.h || true
+      - name: Build wheel with maturin (zig mode, fallback strategies)
+        run: |
+          set -e
+          pip install maturin
+          echo "===GCC-I686-DEBUG=== Trying sysroot + includes"
+          export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr -I/usr/include/i386-linux-gnu -I/usr/lib/gcc/i686-linux-gnu/13/include"
+          if maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter; then
+            echo "===GCC-I686-DEBUG=== Success with sysroot + includes"
+            exit 0
+          fi
+          echo "===GCC-I686-DEBUG=== Trying sysroot only"
+          export BINDGEN_EXTRA_CLANG_ARGS="--sysroot=/usr"
+          if maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter; then
+            echo "===GCC-I686-DEBUG=== Success with sysroot only"
+            exit 0
+          fi
+          echo "===GCC-I686-DEBUG=== Trying -I/usr/include only"
+          export BINDGEN_EXTRA_CLANG_ARGS="-I/usr/include"
+          if maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter; then
+            echo "===GCC-I686-DEBUG=== Success with -I/usr/include only"
+            exit 0
+          fi
+          echo "===GCC-I686-DEBUG=== All strategies failed"
+          exit 1
+
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x86-zig
+          path: dist
