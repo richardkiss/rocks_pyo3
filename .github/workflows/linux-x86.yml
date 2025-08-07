@@ -26,13 +26,14 @@ jobs:
           docker pull dockcross/manylinux2014-x86
           docker run --rm dockcross/manylinux2014-x86 > ./dockcross
           chmod +x ./dockcross
-      - name: Build wheel in dockcross/manylinux2014-x86
+      - name: Build wheel in dockcross/manylinux2014-x86 using uv
         run: |
           ./dockcross bash -c "
             yum install -y clang clang-devel
             export LIBCLANG_PATH=/usr/lib64
-            pip3 install maturin
-            maturin build --release --out dist --find-interpreter
+            curl -LsSf https://astral.sh/uv/install.sh | sh
+            export PATH=\"\$HOME/.local/bin:\$PATH\"
+            uv run maturin build --release --out dist --find-interpreter
           "
       - name: Upload wheels
         uses: actions/upload-artifact@v4
