@@ -1,0 +1,36 @@
+name: linux-x86-zig
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - "*"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-x86-zig:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Install zig, clang, and libclang-dev
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zig clang libclang-dev
+      - name: Build wheel with maturin (zig mode)
+        run: |
+          pip install maturin
+          maturin build --release --zig --target i686-unknown-linux-gnu --out dist --find-interpreter
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-linux-x86-zig
+          path: dist
