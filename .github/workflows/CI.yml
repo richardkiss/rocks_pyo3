@@ -58,6 +58,12 @@ jobs:
           echo 'loaded tmate'
           script -q -c tmate /dev/null
           echo 'ran tmate'
+      - name: Install libclang and related dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang libclang-dev
+      - name: Set LIBCLANG_PATH
+        run: echo "LIBCLANG_PATH=/usr/lib/llvm-14/lib" >> $GITHUB_ENV
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
