@@ -14,6 +14,5 @@ echo "LIBCLANG_PATH=$LIBCLANG_PATH"
 python3 -m ensurepip --upgrade
 ln /usr/local/bin/pip3 /usr/local/bin/pip
 
-#dnf install -y gcc gcc-c++ glibc-devel.i686
-#dnf install -y tmate
-#script -q -c "tmate" /dev/null
+# Install 32-bit cross-compiler for i686 builds
+yum install -y gcc gcc-c++ glibc-devel.i686 libgcc.i686
