@@ -25,24 +25,21 @@ jobs:
       fail-fast: false
       matrix:
         platform:
-#          - runner: ubuntu-22.04
-#            target: x86_64
-#            manylinux: manylinux_2_28
-          - runner: ubuntu-22.04
-            target: x86
+          - runner: ubuntu-24.04
+            target: x86_64
             manylinux: manylinux_2_28
-#          - runner: ubuntu-22.04
-#            target: aarch64
-#            manylinux: manylinux_2_28
-#          - runner: ubuntu-22.04
-#            target: armv7
-#            manylinux: manylinux_2_28
-#          - runner: ubuntu-22.04
-#            target: s390x
-#            manylinux: manylinux_2_28
-#          - runner: ubuntu-22.04
-#            target: ppc64le
-#            manylinux: manylinux_2_28
+          - runner: ubuntu-24.04
+            target: aarch64
+            manylinux: manylinux_2_28
+          - runner: ubuntu-24.04
+            target: armv7
+            manylinux: manylinux_2_28
+          - runner: ubuntu-22.04
+            target: s390x
+            manylinux: manylinux_2_28
+          - runner: ubuntu-22.04
+            target: ppc64le
+            manylinux: manylinux_2_28
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -74,7 +71,6 @@ jobs:
           path: dist
 
   musllinux:
-    if: false
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       fail-fast: false
@@ -109,7 +105,6 @@ jobs:
           path: dist
 
   windows:
-    if: false
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -137,7 +132,6 @@ jobs:
           path: dist
 
   macos:
-    if: false
     runs-on: ${{ matrix.platform.runner }}
     strategy:
       matrix:
@@ -168,7 +162,6 @@ jobs:
           path: dist
 
   sdist:
-    if: false
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
